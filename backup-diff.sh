@@ -29,6 +29,7 @@ FORCE=false
 DRYRUN=""
 REMOTE=false
 VERBOSE=false
+RSYNC_VERBOSE=""
 
 #
 # parsing options
@@ -82,6 +83,7 @@ if [ "$VERBOSE" = true ]; then
     echo "BACKUP_NAME_REGEX: $BACKUP_NAME_REGEX"
     echo "SERVER_NAME: $SERVER_NAME"
     echo "SERVER_USER: $SERVER_USER"
+    RSYNC_VERBOSE="--verbose"
 fi
 
 #
@@ -127,7 +129,7 @@ fi
 #
 echo "#### Testing source directory ####"
 if [ ! -d "$BACKUP_SOURCE" ]; then
-    echo "Source directory $BACKUP_SOURCE_DIR does not exists !"
+    echo "Source directory $BACKUP_SOURCE_DIRNAME does not exists !"
     exit 1
 fi
 echo "-> ok"
@@ -165,7 +167,7 @@ function full_backup() {
               --human-readable \
               --inplace \
               --numeric-ids \
-              --verbose \
+              $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
               $BACKUP_SOURCE \
@@ -183,7 +185,7 @@ function full_backup() {
               --human-readable \
               --inplace \
               --numeric-ids \
-              --verbose \
+              $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
               $BACKUP_SOURCE \
@@ -212,7 +214,7 @@ function linked_backup() {
               --human-readable \
               --inplace \
               --numeric-ids \
-              --verbose \
+              $RSYNC_VERBOSE \
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
@@ -231,7 +233,7 @@ function linked_backup() {
               --human-readable \
               --inplace \
               --numeric-ids \
-              --verbose \
+              $RSYNC_VERBOSE \
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
