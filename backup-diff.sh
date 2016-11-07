@@ -258,8 +258,9 @@ function notifyuser() {
         
         CONNECTED_USERS=$(who | cut -d' ' -f1 | sort | uniq)
         for u in $CONNECTED_USERS
-        do  
-            sudo -u $u DISPLAY=:0.0 notify-send "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
+        do 
+            userid=$(id -u $u)
+            sudo -u $u DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$userid/bus notify-send "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
         done
 
     fi
