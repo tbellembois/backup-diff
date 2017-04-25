@@ -254,15 +254,16 @@ function notifyuser() {
     BACKUP_SRC=$2
     BACKUP_DST=$3
 
-    if (which notify-send ); then 
+    if hash notify-send 2>/dev/null; then 
         
         CONNECTED_USERS=$(who | cut -d' ' -f1 | sort | uniq)
         for u in $CONNECTED_USERS
-        do 
-            userid=$(id -u $u)
-            sudo -u $u DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$userid/bus notify-send "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
+        do  
+            sudo -u $u DISPLAY=:0.0 notify-send "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
         done
 
+    else
+        echo "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
     fi
 
 }
