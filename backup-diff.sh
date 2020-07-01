@@ -3,11 +3,12 @@ set -o nounset                              # Treat unset variables as an error
 
 function show_help() {
 
-    echo "$0 [-S server_name][-U server_user][-d][-f][-v] SOURCE DESTINATION"
+    echo "$0 [-S server_name][-U server_user][-d][-f][-v][-k] SOURCE DESTINATION"
     echo " "
     echo "    SOURCE = the source directory to backup, with NO trailing /"
     echo "    DESTINATION = the backup directory, with a trailing /"
     echo "    -v = debug mode"
+    echo "    -e = rsync ssh command"
     echo "    -S = the FQDN of the server to backup"
     echo "    -U = the server username to log with, default=root"
     echo "    -d = dry run, simulate the backup"
@@ -30,6 +31,7 @@ DRYRUN=""
 REMOTE=false
 VERBOSE=false
 RSYNC_VERBOSE=""
+SSH_COMMAND=""
 
 #
 # parsing options
@@ -38,6 +40,8 @@ OPTIND=1
 while getopts "S:U:fdv" opt; do
   case $opt in
     S ) SERVER_NAME=$OPTARG
+      ;;
+    e ) SSH_COMMAND=$OPTARG
       ;;
     U ) SERVER_USER=$OPTARG
       ;;
@@ -170,6 +174,7 @@ function full_backup() {
               $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
+              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST 
         
@@ -188,6 +193,7 @@ function full_backup() {
               $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
+              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $BACKUP_DEST 
         
@@ -218,6 +224,7 @@ function linked_backup() {
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
+              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST
     
@@ -237,6 +244,7 @@ function linked_backup() {
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
+              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $BACKUP_DEST
 
