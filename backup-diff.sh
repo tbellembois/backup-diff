@@ -37,7 +37,7 @@ SSH_COMMAND=""
 # parsing options
 #
 OPTIND=1
-while getopts "S:U:fdv" opt; do
+while getopts "S:U:e:fdv" opt; do
   case $opt in
     S ) SERVER_NAME=$OPTARG
       ;;
@@ -193,7 +193,7 @@ function full_backup() {
 
     fi
 
-    echo "#### Done ####"
+    return $?
 
 }
 
@@ -236,6 +236,8 @@ function linked_backup() {
 
     fi
 
+    return $?
+
 }
 
 # test if the destination directory is empty
@@ -245,16 +247,16 @@ if [ "$REMOTE" = true ]; then
         if ( ssh -q $SERVER_USER@$SERVER_NAME "find \"$BACKUP_DEST_DIR\" -maxdepth 0 -empty | read v" ); then
             echo "Destination directory $BACKUP_DEST_DIR is empty on server $SERVER_NAME."
 
-            full_backup
+            r=$(full_backup)
 
-            exit 0
+            exit r
         fi
 else
 
     if find "$BACKUP_DEST_DIR" -maxdepth 0 -empty | read v; then
         echo "The destination directory $BACKUP_DEST_DIR is empty."
 
-        full_backup
+        r=$(full_backup)
 
         exit 0
     fi
@@ -275,13 +277,9 @@ if [ "$VERBOSE" = true ]; then
 fi
 
 if [ "$REMOTE" = true ]; then
-
     REFERENCE=$(ssh -q $SERVER_USER@$SERVER_NAME "$REFERENCE_CMD")
-    
 else
-
     REFERENCE=$(eval $REFERENCE_CMD)
-
 fi
 
 echo "->reference:$REFERENCE"
@@ -290,14 +288,16 @@ echo "->reference:$REFERENCE"
 if [[ $REFERENCE =~ ^[a-zA-Z0-9_/-]+$ ]]; then
     echo "Found the last reference backup: $REFERENCE."
 
-    linked_backup
+    r=$(linked_backup)
 
+    exit r
 else
     echo "The destination directory $BACKUP_DEST_DIR is NOT empty but does NOT contain previous backups."   
 
     if [ "$FORCE" = true ] ; then
         echo "Force option detected"
-	    full_backup
+	    r=$(full_backup)
+        exit r
     else
 	    echo "Leaving... (use -f to force backup)"
     fi
