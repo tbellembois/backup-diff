@@ -28,10 +28,11 @@ Running this script every hour will create the following directories:
 ## Usage
 
 ```bash
-    backup-diff [-S server_name][-U server_user][-d][-f][-v] SOURCE DESTINATION
+    backup-diff [-S server_name][-U server_user][-d][-f][-v][-e] SOURCE DESTINATION
 ```
 - `-U`: the server username to log with, default=`root`
 - `-S`: the FQDN of the server to backup
+- `-e`: ssh command passed to rsync -e
 - `-v`: debug mode
 - `-d`: dry-run, simulate the backup
 - `-f`: force, forces the backup even if the destination directory already contains files of directories not related to previous backup
@@ -49,4 +50,3 @@ Running this script every hour will create the following directories:
 ## Roadmap
 
 - remote to local backup
-- mail notification on errors
