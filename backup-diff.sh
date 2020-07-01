@@ -163,8 +163,6 @@ function full_backup() {
     if [ "$REMOTE" = true ]; then
         echo "-> remote destination: $SERVER_NAME"
     
-        notifyuser "start full remote" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
-
         rsync --archive \
               --one-file-system \
               --hard-links \
@@ -177,12 +175,8 @@ function full_backup() {
               $SSH_COMMAND \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST 
-        
-        notifyuser "end full remote" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
 
     else
-
-        notifyuser "start full local" $BACKUP_SOURCE $BACKUP_DEST
         
         rsync --archive \
               --one-file-system \
@@ -196,8 +190,6 @@ function full_backup() {
               $SSH_COMMAND \
               $BACKUP_SOURCE \
               $BACKUP_DEST 
-        
-        notifyuser "end full local" $BACKUP_SOURCE $BACKUP_DEST
 
     fi
 
@@ -212,8 +204,6 @@ function linked_backup() {
     if [ "$REMOTE" = true ]; then
         echo "-> remote destination: $SERVER_NAME"
 
-        notifyuser "start linked remote" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
-
         rsync --archive \
               --one-file-system \
               --hard-links \
@@ -227,12 +217,8 @@ function linked_backup() {
               $SSH_COMMAND \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST
-    
-        notifyuser "end linked remote" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
 
     else
-
-        notifyuser "start linked local" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
 
         rsync --archive \
               --one-file-system \
@@ -248,30 +234,6 @@ function linked_backup() {
               $BACKUP_SOURCE \
               $BACKUP_DEST
 
-        notifyuser "end linked local" $BACKUP_SOURCE $SERVER_NAME:$BACKUP_DEST
-
-    fi
-
-    echo "#### Done ####"
-
-}
-
-function notifyuser() {
-
-    BACKUP_END_START=$1
-    BACKUP_SRC=$2
-    BACKUP_DST=$3
-
-    if hash notify-send 2>/dev/null; then 
-        
-        CONNECTED_USERS=$(who | cut -d' ' -f1 | sort | uniq)
-        for u in $CONNECTED_USERS
-        do  
-            sudo -u $u DISPLAY=:0.0 notify-send "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
-        done
-
-    else
-        echo "Backup $BACKUP_END_START: $BACKUP_SRC -> $BACKUP_DST"
     fi
 
 }
