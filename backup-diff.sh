@@ -248,8 +248,13 @@ if [ "$REMOTE" = true ]; then
             echo "Destination directory $BACKUP_DEST_DIR is empty on server $SERVER_NAME."
 
             r=$(full_backup)
+            if [[ $? -gt 0 ]] 
+            then
+                exit 1
+            else
+                exit 0
+            fi
 
-            exit r
         fi
 else
 
@@ -257,8 +262,13 @@ else
         echo "The destination directory $BACKUP_DEST_DIR is empty."
 
         r=$(full_backup)
+        if [[ $? -gt 0 ]] 
+        then
+            exit 1
+        else
+            exit 0
+        fi
 
-        exit 0
     fi
 
 fi
@@ -289,15 +299,25 @@ if [[ $REFERENCE =~ ^[a-zA-Z0-9_/-]+$ ]]; then
     echo "Found the last reference backup: $REFERENCE."
 
     r=$(linked_backup)
-
-    exit r
+    if [[ $? -gt 0 ]] 
+    then
+        exit 1
+    else
+        exit 0
+    fi
+    
 else
     echo "The destination directory $BACKUP_DEST_DIR is NOT empty but does NOT contain previous backups."   
 
     if [ "$FORCE" = true ] ; then
         echo "Force option detected"
 	    r=$(full_backup)
-        exit r
+        if [[ $? -gt 0 ]] 
+        then
+            exit 1
+        else
+            exit 0
+        fi
     else
 	    echo "Leaving... (use -f to force backup)"
     fi
