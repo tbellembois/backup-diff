@@ -31,7 +31,7 @@ DRYRUN=""
 REMOTE=false
 VERBOSE=false
 RSYNC_VERBOSE=""
-SSH_COMMAND=""
+SSH_COMMAND="/usr/bin/ssh"
 
 #
 # parsing options
@@ -96,14 +96,14 @@ fi
 echo "#### Checking script arguments syntax ####"
 echo "-> BACKUP_SOURCE: $BACKUP_SOURCE"
 if [[ $BACKUP_SOURCE =~ ^/[a-zA-Z0-9_/-]+[^/]$ ]]; then
-    echo "   looks to be ok... "
+    echo "   syntax looks to be ok... "
 else
     echo "   is NOT a valid directory name ! Leaving..."
     exit 1
 fi
 echo "-> BACKUP_DEST_DIR: $BACKUP_DEST_DIR"
 if [[ $BACKUP_DEST_DIR =~ ^/[a-zA-Z0-9_/-]+/$ ]]; then
-    echo "   looks to be ok... "
+    echo "   syntax looks to be ok... "
 else
     echo "   is NOT a valid directory name ! Leaving..."
     exit 1
@@ -250,6 +250,7 @@ if [ "$REMOTE" = true ]; then
             r=$(full_backup)
             if [[ $? -gt 0 ]] 
             then
+                echo $r
                 exit 1
             else
                 exit 0
@@ -264,6 +265,7 @@ else
         r=$(full_backup)
         if [[ $? -gt 0 ]] 
         then
+            echo $r
             exit 1
         else
             exit 0
@@ -301,6 +303,7 @@ if [[ $REFERENCE =~ ^[a-zA-Z0-9_/-]+$ ]]; then
     r=$(linked_backup)
     if [[ $? -gt 0 ]] 
     then
+        echo $r
         exit 1
     else
         exit 0
@@ -314,6 +317,7 @@ else
 	    r=$(full_backup)
         if [[ $? -gt 0 ]] 
         then
+            echo $r
             exit 1
         else
             exit 0
