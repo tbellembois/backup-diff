@@ -90,6 +90,10 @@ if [ "$VERBOSE" = true ]; then
     RSYNC_VERBOSE="--verbose"
 fi
 
+# timestamp
+echo " "
+echo $(date)
+
 #
 # arguments syntax check
 #
@@ -117,7 +121,7 @@ if [ ${#SERVER_NAME} -ge 1 ]; then
     echo "#### Checking remote access ####"
     echo "-> server $SERVER_NAME with user $SERVER_USER"
 
-    if (ssh $SERVER_USER@$SERVER_NAME 'echo "test"'); then
+    if ($SSH_COMMAND $SERVER_USER@$SERVER_NAME 'echo "test"'); then
         echo "Looks good."
     else
         echo "Can NOT access $SERVER_NAME with user $USER_NAME"
@@ -143,7 +147,7 @@ echo "-> ok"
 #
 echo "#### Testing destination directory ####"
 if [ "$REMOTE" = true ]; then
-    if ( ssh -q $SERVER_USER@$SERVER_NAME "[ ! -d \"$BACKUP_DEST_DIR\"" ] ); then
+    if ( $SSH_COMMAND -q $SERVER_USER@$SERVER_NAME "[ ! -d \"$BACKUP_DEST_DIR\"" ] ); then
         echo "Destination directory $BACKUP_DEST_DIR does not exists on server $SERVER_NAME !"
         exit 1
     fi
@@ -172,7 +176,7 @@ function full_backup() {
               $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
-              $SSH_COMMAND \
+              -e "$SSH_COMMAND" \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST 
 
@@ -187,7 +191,6 @@ function full_backup() {
               $RSYNC_VERBOSE \
               --progress \
               $DRYRUN \
-              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $BACKUP_DEST 
 
@@ -214,7 +217,7 @@ function linked_backup() {
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
-              $SSH_COMMAND \
+              -e "$SSH_COMMAND" \
               $BACKUP_SOURCE \
               $SERVER_USER@$SERVER_NAME:$BACKUP_DEST
 
@@ -230,7 +233,6 @@ function linked_backup() {
               --progress \
               --link-dest=$REFERENCE \
               $DRYRUN \
-              $SSH_COMMAND \
               $BACKUP_SOURCE \
               $BACKUP_DEST
 
@@ -244,7 +246,7 @@ function linked_backup() {
 echo "#### Testing destination directory content ####"
 if [ "$REMOTE" = true ]; then
 
-        if ( ssh -q $SERVER_USER@$SERVER_NAME "find \"$BACKUP_DEST_DIR\" -maxdepth 0 -empty | read v" ); then
+        if ( $SSH_COMMAND -q $SERVER_USER@$SERVER_NAME "find \"$BACKUP_DEST_DIR\" -maxdepth 0 -empty | read v" ); then
             echo "Destination directory $BACKUP_DEST_DIR is empty on server $SERVER_NAME."
 
             r=$(full_backup)
@@ -289,7 +291,7 @@ if [ "$VERBOSE" = true ]; then
 fi
 
 if [ "$REMOTE" = true ]; then
-    REFERENCE=$(ssh -q $SERVER_USER@$SERVER_NAME "$REFERENCE_CMD")
+    REFERENCE=$($SSH_COMMAND -q $SERVER_USER@$SERVER_NAME "$REFERENCE_CMD")
 else
     REFERENCE=$(eval $REFERENCE_CMD)
 fi
